@@ -47,6 +47,8 @@
   "COUNTRY_CODE_LBL":"בחר קוד מדינה",
   "SEND_OTP":"שלח OTP",
   "GET_PASSWORD":"קבל סיסמא",
+  "DELIVERY_TYPE":"סוג משלוח" ,
+  "Main Image * ": "תמונה ראשית",
   "AND_LBL":"ו",
   "PRIVACY_POLICY_LBL":"מדיניות הפרטיות",
   "FORGOT_PASSWORDTITILE":"שכחת את הסיסמא",

@@ -721,7 +721,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
 
 //==============================================================================
 //========================= get_seller_details API =============================
-
+  String? deliveryType;
   Future<Null> getSallerDetail() async {
     _isNetworkAvail = await isNetworkAvailable();
     if (_isNetworkAvail) {
@@ -762,6 +762,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
             var pan_number = data[panNumber];
             var status = data[STATUS];
             var storeLogo = data[StoreLogo];
+            deliveryType = data['seller_oders_type'] ;
             onOf = data["online"] == "0" ? false : true;
 
             print("bank name : $bankName");
@@ -832,32 +833,41 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
 //============================ AppBar ==========================================
 
   getAppBar(BuildContext context) {
-    return AppBar(
-      title: Text(
-        appName,
-        style: TextStyle(
-          color: grad2Color,
-        ),
+    return PreferredSize(
+      preferredSize: Size.fromHeight(90),
+      child: AppBar(
+        centerTitle: true,
+        title: Image.asset('assets/logo/food_on_the_way.png', fit: BoxFit.contain,height: 75,),
+        // Text(
+        //   appName,
+        //   style: TextStyle(
+        //     color: grad2Color,
+        //   ),
+        // ),
+        backgroundColor: white,
+        iconTheme: IconThemeData(color: grad2Color),
+        actions: [
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              onOf ? Text("Online") : Text("Offline"),
+            ],
+          ),
+
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0, right: 10),
+            child: CupertinoSwitch(
+                trackColor: primary,
+                value: onOf,
+                onChanged: (value) {
+                  setState(() {
+                    onOf = value;
+                    shopStatus();
+                  });
+                }),
+          )
+        ],
       ),
-      backgroundColor: white,
-      iconTheme: IconThemeData(color: grad2Color),
-      actions: [
-        Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            onOf ? Text("Online") : Text("Offline"),
-          ],
-        ),
-        CupertinoSwitch(
-            trackColor: primary,
-            value: onOf,
-            onChanged: (value) {
-              setState(() {
-                onOf = value;
-                shopStatus();
-              });
-            })
-      ],
     );
   }
 
@@ -965,6 +975,25 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                         .textTheme
                         .caption!
                         .copyWith(color: white),
+                  ),
+                  Row(
+                    children: [
+                      Text(
+                        getTranslated(context, "DELIVERY_TYPE")!,
+                        style: Theme.of(context)
+                            .textTheme
+                            .caption!
+                            .copyWith(color: white),
+                      ),
+                      Text(
+                          deliveryType == "take_way"?
+                       " : Take Away": " : Both",
+                        style: Theme.of(context)
+                            .textTheme
+                            .caption!
+                            .copyWith(color: white),
+                      ),
+                    ],
                   ),
                   Padding(
                     padding: const EdgeInsets.only(

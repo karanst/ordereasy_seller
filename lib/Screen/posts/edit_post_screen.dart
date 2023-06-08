@@ -5,6 +5,7 @@ import 'package:eshopmultivendor/Helper/Color.dart';
 import 'package:eshopmultivendor/Helper/Session.dart';
 import 'package:eshopmultivendor/Helper/String.dart';
 import 'package:eshopmultivendor/Model/ProductModel/Product.dart';
+import 'package:eshopmultivendor/Model/my_posts_model.dart';
 import 'package:eshopmultivendor/Screen/Home.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -13,16 +14,16 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:permission_handler/permission_handler.dart';
 
-class AddPosts extends StatefulWidget {
-  const AddPosts({Key? key}) : super(key: key);
+class EditPostScreen extends StatefulWidget {
+  MyPostsList? data;
+   EditPostScreen({Key? key, this.data}) : super(key: key);
 
   @override
-  State<AddPosts> createState() => _AddPostsState();
+  State<EditPostScreen> createState() => _EditPostScreenState();
 }
 
-class _AddPostsState extends State<AddPosts> {
+class _EditPostScreenState extends State<EditPostScreen> {
 
 
   List<Product> productList = [];
@@ -47,6 +48,17 @@ class _AddPostsState extends State<AddPosts> {
   @override
   void initState() {
     super.initState();
+    if(widget.data != null){
+      setState(() {
+        oldPriceController.text  = widget.data!.oldPrice.toString();
+        newPriceController.text =  widget.data!.newPrice.toString();
+        descriptionController.text =  widget.data!.text.toString();
+        startController.text =  widget.data!.startDate.toString();
+        endController.text =  widget.data!.endDate.toString();
+        selectedTab = int.parse(widget.data!.postType.toString());
+        // categoryValue = widget.data?.productId;
+      });
+    }
     getProduct('0');
     // getTableTypes();
   }
@@ -137,25 +149,21 @@ class _AddPostsState extends State<AddPosts> {
 
   }
 
-  Future<void> getFromGallery() async {
-    // bool req = await Permission.storage.request().isGranted;
-    // if(req) {
-      var result = await FilePicker.platform.pickFiles(
-        type: FileType.image,
-        allowMultiple: false,
-      );
-      if (result != null) {
-        setState(() {
-          tableImage = File(result.files.single.path.toString());
-        });
-        Navigator.pop(context);
-      } else {
-        // User canceled the picker
-      }
-    // }else{
-    //   openAppSettings();
-    // }
-  }
+  // Future<void> getFromGallery() async {
+  //   var result = await FilePicker.platform.pickFiles(
+  //     type: FileType.image,
+  //     allowMultiple: false,
+  //   );
+  //   if (result != null) {
+  //     setState(() {
+  //       tableImage = File(result.files.single.path.toString());
+  //     });
+  //     Navigator.pop(context);
+  //
+  //   } else {
+  //     // User canceled the picker
+  //   }
+  // }
 
   String _dateValue = '';
   var dateFormate;
@@ -206,7 +214,7 @@ class _AddPostsState extends State<AddPosts> {
             } else {
               if (msg != "Products Not Found !")
                 //setSnackbar(msg!);
-              isLoadingmore = false;
+                isLoadingmore = false;
             }
             if (mounted)
               setState(() {
@@ -288,7 +296,7 @@ class _AddPostsState extends State<AddPosts> {
       });
     }
   }
-  
+
   Future<void> getFromCamera() async {
     final picker = ImagePicker();
     final pickedFile = await picker.getImage(source: ImageSource.camera);
@@ -331,15 +339,15 @@ class _AddPostsState extends State<AddPosts> {
   //   }
   // }
 
-  addPosts() async{
+  updatePost() async{
     CUR_USERID = await getPrefrence(Id);
     var headers = {
       'Cookie': 'ci_session=aa83f4f9d3335df625437992bb79565d0973f564'
     };
-    var request = http.MultipartRequest('POST', Uri.parse(addPostsApi.toString()));
+    var request = http.MultipartRequest('POST', Uri.parse(updatePostsApi.toString()));
     request.fields.addAll({
       SellerId : CUR_USERID.toString(),
-      'product_id':categoryValue.toString(),
+      'product_id': categoryValue.toString(),
       'text':descriptionController.text.toString(),
       'old_price':oldPriceController.text.toString(),
       'new_price': newPriceController.text.toString(),
@@ -363,10 +371,10 @@ class _AddPostsState extends State<AddPosts> {
       bool error  = result['error'];
       String msg = result['message'];
       if(!error) {
-        Fluttertoast.showToast(msg: msg);
+        // Fluttertoast.showToast(msg: msg);
         Navigator.pop(context, 'true');
       }else{
-        Fluttertoast.showToast(msg: msg);
+
       }
       // var finalResponse = TableTypeModel.fromJson(result);
       // setState(() {
@@ -393,23 +401,23 @@ class _AddPostsState extends State<AddPosts> {
   var imagePathList;
   bool isImages = false;
 
-  // Future<void> getFromGallery() async {
-  //   var result = await FilePicker.platform.pickFiles(
-  //     type: FileType.image,
-  //     allowMultiple: false,
-  //   );
-  //   if (result != null) {
-  //     setState(() {
-  //       isImages = true;
-  //       // servicePic = File(result.files.single.path.toString());
-  //     });
-  //     imagePathList = result.paths.toList();
-  //     // imagePathList.add(result.paths.toString()).toList();
-  //     print("SERVICE PIC === ${imagePathList.length}");
-  //   } else {
-  //     // User canceled the picker
-  //   }
-  // }
+  Future<void> getFromGallery() async {
+    var result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      allowMultiple: true,
+    );
+    if (result != null) {
+      setState(() {
+        isImages = true;
+        // servicePic = File(result.files.single.path.toString());
+      });
+      imagePathList = result.paths.toList();
+      // imagePathList.add(result.paths.toString()).toList();
+      print("SERVICE PIC === ${imagePathList.length}");
+    } else {
+      // User canceled the picker
+    }
+  }
 
   Widget uploadMultiImage() {
     return Column(
@@ -526,7 +534,7 @@ class _AddPostsState extends State<AddPosts> {
                 onPressed: () async {
                   Navigator.of(context).pop();
                   //selectImage();
-                   getFromGallery();
+                  getFromGallery();
                   // setState(() {
                   //   // _file = file;Start
                   // });
@@ -561,7 +569,7 @@ class _AddPostsState extends State<AddPosts> {
       child: Padding(
         padding: const EdgeInsets.only(top: 8.0, bottom: 10),
         child: Container(
-           width: 242,
+          width: 242,
           decoration: BoxDecoration(
             border: Border.all(color: primary),
             borderRadius: BorderRadius.circular(12),
@@ -581,7 +589,7 @@ class _AddPostsState extends State<AddPosts> {
                   width: 120,
                   padding: EdgeInsets.symmetric(vertical: 10),
                   decoration: BoxDecoration(
-                      // border: Border.all(color: primary,),
+                    // border: Border.all(color: primary,),
                       color: selectedTab  == 1 ? primary : white,
                       borderRadius: BorderRadius.circular(10)),
                   child: Center(
@@ -605,7 +613,7 @@ class _AddPostsState extends State<AddPosts> {
                   width: 120,
                   padding: EdgeInsets.symmetric(vertical: 10),
                   decoration: BoxDecoration(
-                      // border: Border.all(color: primary,),
+                    // border: Border.all(color: primary,),
                       color: selectedTab  == 2 ? primary : white,
                       borderRadius: BorderRadius.circular(10)),
                   child: Center(
@@ -667,7 +675,7 @@ class _AddPostsState extends State<AddPosts> {
 
           Scaffold(
             appBar: AppBar(
-              title: Text("Add Post", style: TextStyle(
+              title: Text("Edit Post", style: TextStyle(
                   color: primary
               ),),
               elevation: 5,
@@ -701,7 +709,7 @@ class _AddPostsState extends State<AddPosts> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      tabBarView(),
+                      // tabBarView(),
                       tempList.isNotEmpty ?
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -752,7 +760,7 @@ class _AddPostsState extends State<AddPosts> {
                           ),
                         ],
                       )
-                      : SizedBox.shrink(),
+                          : SizedBox.shrink(),
 
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -771,7 +779,7 @@ class _AddPostsState extends State<AddPosts> {
                                   ),),
                                 ),
                                 Container(
-                                   padding: EdgeInsets.only(top: 10, left: 12, right: 8),
+                                  padding: EdgeInsets.only(top: 10, left: 12, right: 8),
                                   height: 50,
                                   decoration: BoxDecoration(
                                       color: white,
@@ -873,42 +881,42 @@ class _AddPostsState extends State<AddPosts> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(left: 8.0,  bottom: 5),
-                              child: Text("Start Date", style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: primary
-                              ),),
-                            ),
-                            Container(
-                            // padding: EdgeInsets.only(top: 10, left: 12, right: 8),
-                  height: 50,
-                  decoration: BoxDecoration(
-                            color: white,
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: primary)
-                  ),
-                  width: MediaQuery.of(context).size.width/2-30,
-                  child: TextFormField(
-                                      style: const TextStyle(color: Colors.black54),
-                                      readOnly: true,
-                                      controller: startController,
-                                      onTap: () {
-                                        _selectDate("1");
-                                      },
-                                      decoration: const InputDecoration(
-                                          contentPadding: EdgeInsets.only(left: 10),
-                                          border: InputBorder.none,
-                                          hintText: 'Start Date',
-                                          hintStyle: TextStyle(color: Colors.black54)),
-                                    ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 8.0,  bottom: 5),
+                                  child: Text("Start Date", style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: primary
+                                  ),),
+                                ),
+                                Container(
+                                  // padding: EdgeInsets.only(top: 10, left: 12, right: 8),
+                                  height: 50,
+                                  decoration: BoxDecoration(
+                                      color: white,
+                                      borderRadius: BorderRadius.circular(10),
+                                      border: Border.all(color: primary)
                                   ),
-                          ],
-                        ),
+                                  width: MediaQuery.of(context).size.width/2-30,
+                                  child: TextFormField(
+                                    style: const TextStyle(color: Colors.black54),
+                                    readOnly: true,
+                                    controller: startController,
+                                    onTap: () {
+                                      _selectDate("1");
+                                    },
+                                    decoration: const InputDecoration(
+                                        contentPadding: EdgeInsets.only(left: 10),
+                                        border: InputBorder.none,
+                                        hintText: 'Start Date',
+                                        hintStyle: TextStyle(color: Colors.black54)),
+                                  ),
+                                ),
+                              ],
+                            ),
 
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -953,11 +961,11 @@ class _AddPostsState extends State<AddPosts> {
                           ],
                         ),
                       )
-                      : SizedBox.shrink(),
+                          : SizedBox.shrink(),
                       ElevatedButton(
                           onPressed: (){
-                            // _selectImage(context);
-                            requestPermission(context);
+                            _selectImage(context);
+                            // requestPermission(context);
                           },
                           style: ElevatedButton.styleFrom(primary: primary, shape: StadiumBorder()),
                           child: Text("Upload Images", style: TextStyle(
@@ -983,15 +991,15 @@ class _AddPostsState extends State<AddPosts> {
                         child: ElevatedButton(
                             onPressed: (){
                               if(selectedTab == 1){
-                                if(oldPriceController.text.isNotEmpty || newPriceController.text.isNotEmpty || descriptionController.text.isNotEmpty ||
-                                startController.text.isNotEmpty || endController.text.isNotEmpty){
-                                  addPosts();
+                                if(oldPriceController.text.isNotEmpty && newPriceController.text.isNotEmpty && descriptionController.text.isNotEmpty ||
+                                    startController.text.isNotEmpty && endController.text.isNotEmpty){
+                                  updatePost();
                                 }else{
-                                 Fluttertoast.showToast(msg: "Please fill all details!");
+                                  Fluttertoast.showToast(msg: "Please fill all details!");
                                 }
                               }else{
-                                if(oldPriceController.text.isNotEmpty || newPriceController.text.isNotEmpty || descriptionController.text.isNotEmpty ){
-                                  addPosts();
+                                if(oldPriceController.text.isNotEmpty && newPriceController.text.isNotEmpty && descriptionController.text.isNotEmpty ){
+                                  updatePost();
                                 }else{
                                   Fluttertoast.showToast(msg: "Please fill all details!");
                                 }
@@ -1005,7 +1013,7 @@ class _AddPostsState extends State<AddPosts> {
                                 // ),
                                 fixedSize: Size(MediaQuery.of(context).size.width - 40, 50)
                             ),
-                            child: Text("Add Post", style: TextStyle(
+                            child: Text("Update Post", style: TextStyle(
                                 fontSize: 16, fontWeight: FontWeight.w600,
                                 color: white
                             ),)),

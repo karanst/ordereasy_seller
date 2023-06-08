@@ -193,10 +193,15 @@ class _RestaurantDashboardState extends State<RestaurantDashboard> with TickerPr
           controller: _tabController,
           children: [
             Home(),
-            OrderList(),
-            MyPostsScreen(),
+            OrderList(
+              show : true
+            ),
+            MyPostsScreen(
+              show: true,
+            ),
             ProductList(
               flag: "",
+              show: true,
             )
 
           ],

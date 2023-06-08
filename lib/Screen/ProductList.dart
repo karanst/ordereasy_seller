@@ -14,8 +14,9 @@ import 'Search.dart';
 
 class ProductList extends StatefulWidget {
   final String? flag;
+  final bool? show;
 
-  const ProductList({Key? key, this.flag}) : super(key: key);
+  const ProductList({Key? key, this.flag, this.show}) : super(key: key);
   @override
   State<StatefulWidget> createState() => StateProduct();
 }
@@ -486,18 +487,30 @@ class StateProduct extends State<ProductList> with TickerProviderStateMixin {
 
   getAppbar() {
     return AppBar(
+      centerTitle: false,
+      title: Row(
+        children: [
+          Text("Products", style: TextStyle(
+              color: primary
+          ),),
+
+          Image.asset('assets/logo/food_on_the_way.png', fit: BoxFit.contain, height: 75,),
+        ],
+      ),
       titleSpacing: 0,
+      // leadingWidth: widget.show == true ? 5 : 50,
       automaticallyImplyLeading: false,
       backgroundColor: white,
       iconTheme: IconThemeData(color: primary),
-      title: Text(
-        getTranslated(context, "PRODUCTS")!,
-        style: TextStyle(
-          color: primary,
-        ),
-      ),
+      // title: Text(
+      //   getTranslated(context, "PRODUCTS")!,
+      //   style: TextStyle(
+      //     color: primary,
+      //   ),
+      // ),
       elevation: 5,
-      leading: Builder(
+      leading: widget.show == true? SizedBox.shrink() :
+      Builder(
         builder: (BuildContext context) {
           return Container(
             margin: EdgeInsets.all(10),

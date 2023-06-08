@@ -11,6 +11,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class OrderList extends StatefulWidget {
+  final bool? show;
+  const OrderList({Key? key, this.show}) : super(key: key);
   @override
   _OrderListState createState() => _OrderListState();
 }
@@ -246,12 +248,23 @@ class _OrderListState extends State<OrderList> with TickerProviderStateMixin {
 
   AppBar getAppbar() {
     return AppBar(
-      title: appBarTitle,
+      centerTitle: true,
+      title: Row(
+        children: [
+          Text("Orders", style: TextStyle(
+              color: primary
+          ),),
+          const SizedBox(width: 10,),
+          Image.asset('assets/logo/food_on_the_way.png', fit: BoxFit.contain, height: 75,),
+        ],
+      ),
+      // title: appBarTitle,
       elevation: 5,
       titleSpacing: 0,
       iconTheme: IconThemeData(color: primary),
       backgroundColor: white,
-      leading: Builder(
+      leading: widget.show == true ? SizedBox.shrink() :
+      Builder(
         builder: (BuildContext context) {
           return Container(
             margin: EdgeInsets.all(10),

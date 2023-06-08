@@ -129,7 +129,7 @@ class StateProfile extends State<Profile> with TickerProviderStateMixin {
   }
 //==============================================================================
 //============================= dispose method =================================
-
+int? _value = 1;
   @override
   void dispose() {
     buttonController!.dispose();
@@ -445,6 +445,53 @@ class StateProfile extends State<Profile> with TickerProviderStateMixin {
               setEmail(),
               getDivider(),
               setAddress(),
+              getDivider(),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Radio(
+                            value: 1,
+                            fillColor: MaterialStateColor.resolveWith((states) => primary),
+                            groupValue: _value,
+                            onChanged: (int? value) {
+                              setState(() {
+                                _value = value!;
+                              });
+                            }),
+                        Text(
+                          "Only Take Away",
+                          style: TextStyle(color: black),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Radio(
+                            value: 2,
+                            fillColor: MaterialStateColor.resolveWith((states) => primary),
+                            groupValue: _value,
+                            onChanged: (int? value) {
+                              setState(() {
+                                _value = value!;
+                                // isUpi = true;
+                              });
+                            }),
+                        Text(
+                          "Both",
+                          style: TextStyle(color: black),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),

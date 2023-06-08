@@ -42,6 +42,7 @@ final Uri getMyPostsApi = Uri.parse(baseUrl + 'get_post');
 final Uri addPostsApi = Uri.parse(baseUrl + 'add_post_seller');
 final Uri updatePostsApi = Uri.parse(baseUrl + 'update_post');
 final Uri deletePostApi = Uri.parse(baseUrl + 'get_post');
+final Uri activeDeactiveCustomerApi = Uri.parse(baseUrl + 'update_status_customer');
 
 //==============================================================================
 //========================= Parameter for API's ================================

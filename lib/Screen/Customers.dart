@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:eshopmultivendor/Helper/ApiBaseHelper.dart';
 import 'package:eshopmultivendor/Helper/AppBtn.dart';
 import 'package:eshopmultivendor/Helper/Color.dart';
@@ -6,10 +7,12 @@ import 'package:eshopmultivendor/Helper/Constant.dart';
 import 'package:eshopmultivendor/Helper/Session.dart';
 import 'package:eshopmultivendor/Helper/String.dart';
 import 'package:eshopmultivendor/Model/Customer/CustomerModel.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/material.dart';
-
+import 'package:http/http.dart' as http;
 class Customers extends StatefulWidget {
   const Customers({
     Key? key,
@@ -154,7 +157,6 @@ class _CustomersState extends State<Customers> with TickerProviderStateMixin {
                               onRefresh: _refresh,
                               child: ListView.builder(
                                 controller: notificationcontroller,
-
                                 // shrinkWrap: true,
                                 //  controller: controller,
                                 itemCount: notiList.length,
@@ -340,6 +342,7 @@ class _CustomersState extends State<Customers> with TickerProviderStateMixin {
 
   Widget listItem(int index) {
     Customer model = notiList[index];
+    activeDeactive = notiList[index].status == "1" ? true : false;
 
     String add = model.street! + " " + model.area! + " " + model.city!;
 
@@ -353,7 +356,7 @@ class _CustomersState extends State<Customers> with TickerProviderStateMixin {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              padding: const EdgeInsets.symmetric(horizontal: 5.0),
               child: Row(
                 children: [
                   Expanded(
@@ -373,24 +376,53 @@ class _CustomersState extends State<Customers> with TickerProviderStateMixin {
                       ),
                     ),
                   ),
-                  Container(
-                    margin: EdgeInsets.only(left: 8),
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: model.status == "1" ? Colors.green : red,
-                      borderRadius: new BorderRadius.all(
-                        const Radius.circular(4.0),
+
+
+                  InkWell(
+                    onTap: (){
+                      // if(model.status == "1"){
+                      //   activeDeactiveCustomer("0", model.id);
+                      //   setState(() {
+                      //   });
+                      // }else{
+                      //   activeDeactiveCustomer("1", model.id);
+                      // }
+                    },
+                    child: Container(
+                      margin: EdgeInsets.only(left: 8),
+                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: model.status == "1" ? Colors.green : red,
+                        borderRadius: new BorderRadius.all(
+                          const Radius.circular(4.0),
+                        ),
                       ),
-                    ),
-                    child: Text(
-                      model.status == "1"
-                          ? getTranslated(context, "Active")!
-                          : getTranslated(context, "Deactive")!,
-                      style: TextStyle(
-                        color: white,
+                      child: Text(
+                        model.status == "1"
+                            ? getTranslated(context, "Active")!
+                            : getTranslated(context, "Deactive")!,
+                        style: TextStyle(
+                          color: white,
+                        ),
                       ),
                     ),
                   ),
+                  const SizedBox(width: 10,),
+                  CupertinoSwitch(
+                      trackColor: primary,
+                      value: activeDeactive,
+                      onChanged: (value) {
+                        setState(() {
+                          activeDeactive = value;
+                        });
+                        if(model.status == "1"){
+                          activeDeactiveCustomer("0", model.id);
+                          setState(() {
+                          });
+                        }else{
+                          activeDeactiveCustomer("1", model.id);
+                        }
+                      }),
                 ],
               ),
             ),
@@ -683,6 +715,44 @@ class _CustomersState extends State<Customers> with TickerProviderStateMixin {
     total = 0;
     notiList.clear();
     return getDetails();
+  }
+
+  bool activeDeactive = false;
+
+  activeDeactiveCustomer(String status, customerId) async{
+
+    CUR_USERID = await getPrefrence(Id);
+    var headers = {
+      'Cookie': 'ci_session=aa83f4f9d3335df625437992bb79565d0973f564'
+    };
+    var request = http.MultipartRequest('POST', Uri.parse(activeDeactiveCustomerApi.toString()));
+    request.fields.addAll({
+      UserId : customerId.toString(),
+      'status': status.toString()
+      //activeDeactive ? "1" : "0"
+    });
+
+    print("this is refer request ${request.fields.toString()}");
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+    if (response.statusCode == 200) {
+      String str = await response.stream.bytesToString();
+      var result = json.decode(str);
+      if(result != null) {
+          Fluttertoast.showToast(msg: result['message']);
+          _refresh();
+        }
+      // var finalResponse = MyPostsModel.fromJson(result);
+      // setState(() {
+      //   myPosts = finalResponse.data!;
+      //   _isLoading = false;
+      // });
+      // print("this is referral data ${myPosts.length}");
+    }
+    else {
+      print(response.reasonPhrase);
+    }
   }
 
   Future<Null> getDetails() async {

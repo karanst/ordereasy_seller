@@ -1286,8 +1286,7 @@ class StateOrder extends State<OrderDetail> with TickerProviderStateMixin {
                                                               fontWeight:
                                                                   FontWeight
                                                                       .bold,
-                                                            ),
-                                                  ),
+                                                            ),),
                                                 ),
                                                 Icon(
                                                   Icons.arrow_drop_down,
